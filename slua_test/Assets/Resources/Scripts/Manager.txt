@@ -1,0 +1,42 @@
+import "UnityEngine"
+
+local manager = {}
+local enemy = Resources.Load("Prefabs/Enemy")
+local allenemy =  GameObject.Find("AllEnemy")
+
+function  main()
+
+    manager:init()
+
+    local c=coroutine.create(function()
+        while true do
+            Yield(WaitForSeconds(5)) 
+            if allenemy.transform.childCount<10 then
+                manager:createEnemy(10)
+            end
+        end 
+        
+    end)
+    coroutine.resume(c)
+
+    return manager
+
+end
+
+function  manager:init()
+
+    for i=1,10 do
+       manager:createEnemy(1)
+    end
+
+end
+
+function  manager:createEnemy(height)
+    local pos = Vector3(math.random(-50,50),height,math.random(-50,50))   
+    local color = Color(math.random(0,1),math.random(0,1),math.random(0,1))    
+    local rota = Vector3(0,math.random(0,360),0)
+    local g = GameObject.Instantiate(enemy,pos,Quaternion.identity)
+    g.transform.rotation = Quaternion.Euler(rota)
+    g:GetComponent(Renderer).material.color = color
+    g.transform:SetParent(allenemy.transform)
+end

@@ -1,0 +1,80 @@
+import "UnityEngine"
+import "UnityEngine.UI"
+
+local  gridManager = {}
+
+function  main()
+
+    gridManager.item = Resources.Load("Prefabs/Sword")
+    gridManager.sb = GameObject.Find("Canvas/Bag/ScrollRect/Scrollbar"):GetComponent(Scrollbar)
+    gridManager.sb.value = 1
+    gridManager.gridlist = GameObject.Find("Canvas/Bag/ScrollRect/GridManager/GridList")
+    gridManager.gridcount = gridManager.gridlist.transform.childCount
+    gridManager.grid = {}
+    gridManager.c_grid = {}
+    for i=1,gridManager.gridcount do
+        table.insert(gridManager.grid,gridManager.gridlist.transform:GetChild(i-1).gameObject)        
+    end
+
+    button_add = GameObject.Find("Canvas/Button_Add"):GetComponent(Button)
+    button_clearup = GameObject.Find("Canvas/Button_ClearUp"):GetComponent(Button)
+
+    button_add.onClick:AddListener(
+        function()
+            gridManager:additem()
+        end
+    )
+
+    button_clearup.onClick:AddListener(
+    function()
+        gridManager:clearup()
+    end
+    )
+
+    return gridManager
+end
+
+function gridManager:update()
+
+    -- if Input.GetKeyDown(KeyCode.J) then
+    --    self:additem()
+    -- end
+
+    -- if Input.GetKeyDown(KeyCode.K) then
+    --     self:clearup()
+    -- end
+
+end
+
+function gridManager:additem()
+    for i=1,#self.grid do
+        if  self.grid[i].transform.childCount==0  then
+            local t = self.grid[i].gameObject:GetComponent(RectTransform)
+            local g = GameObject.Instantiate(self.item)
+            g.transform:SetParent(t)
+            g.transform.localPosition = Vector3.zero
+            break
+        end
+    end
+end
+
+function gridManager:clearup()
+    for i=1,#self.grid do
+        if  self.grid[i].transform.childCount>0  then
+            table.insert(self.c_grid,self.grid[i].transform:GetChild(0).gameObject)
+            if i == #self.grid then
+                self.grid = {}
+            end
+        end        
+    end
+
+    for j=1,#self.c_grid do
+        local g = self.c_grid[j]
+        g.transform:SetParent(self.grid[j].transform)
+        g.transform.localPosition = Vector3.zero
+        if j == #self.c_grid then
+            self.c_grid = {}
+        end
+    end
+end
+

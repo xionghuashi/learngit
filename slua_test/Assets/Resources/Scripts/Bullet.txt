@@ -1,0 +1,30 @@
+import "UnityEngine"
+
+
+local  bulletcontrol = {}
+local  bullet 
+
+function  main()
+
+    return bulletcontrol
+
+end
+
+function  bulletcontrol.init(gameobject)
+
+    bullet = gameobject
+    GameObject.Destroy(bullet,5)
+
+end
+
+function bulletcontrol:update()
+
+    bullet.transform:Translate(bullet.transform.forward*Time.deltaTime*10)       
+end
+
+function bulletcontrol.ontriggerenter(collider)
+    if collider.tag == "Enemy" then
+        GameObject.Destroy(collider)
+        GameObject.Destroy(bullet)
+    end
+end

@@ -1,0 +1,65 @@
+import "UnityEngine"
+import "UnityEngine.UI"
+
+local itemDrag = {}
+
+function main()
+    itemDrag.originalLocalPointerPosition = nil
+    itemDrag.originalPanelLocalPosition = nil
+    itemDrag.panelRectTransform = nil
+    itemDrag.parentRectTransform = GameObject.Find("ScrollRect"):GetComponent(RectTransform)
+    itemDrag.gridManager = GameObject.Find("GridManager")
+    itemDrag.originalGrid = nil
+    itemDrag.siblingIndex = 0
+    itemDrag.transform = nil
+
+    return itemDrag
+end
+
+function itemDrag.init(transform)
+
+    itemDrag.panelRectTransform = transform
+    itemDrag.transform = transform
+    
+end
+
+function itemDrag:onPointerDown(data)
+    self.originalGrid = self.panelRectTransform.parent.gameObject
+    self.panelRectTransform:SetParent(self.gridManager.transform)
+    self.siblingIndex = self.siblingIndex+1
+    self.panelRectTransform.transform:SetSiblingIndex(self.siblingIndex)
+    self.originalPanelLocalPosition = self.panelRectTransform.localPosition
+    local temp = nil
+    temp,self.originalLocalPointerPosition = RectTransformUtility.ScreenPointToLocalPointInRectangle(self.parentRectTransform, data.position, data.pressEventCamera)
+
+end
+
+function itemDrag:onPointerUp(data)
+    local hit = Physics2D.Raycast(Input.mousePosition, -Vector2.up)
+    if hit.collider ~= nil then
+        if hit.collider.gameObject.tag == "Grid" and hit.collider.gameObject.transform.childCount == 0 then
+            self.transform.parent = hit.transform
+        else
+            self.transform.parent = self.originalGrid.transform
+        end
+    else
+        self.transform.parent = self.originalGrid.transform 
+    end 
+    self.transform.localPosition = Vector3.zero   
+end
+
+function itemDrag:onDrag(data)
+    if self.panelRectTransform == nil or self.parentRectTransform == nil then
+        return
+    end
+    local temp2,localPointerPosition = RectTransformUtility.ScreenPointToLocalPointInRectangle(self.parentRectTransform, data.position, data.pressEventCamera)
+    if  temp2  then
+        offsetToOriginal = localPointerPosition - self.originalLocalPointerPosition
+    end    
+    
+
+    local offset =  Vector3(offsetToOriginal.x, offsetToOriginal.y, 0)
+
+    self.panelRectTransform.localPosition = self.originalPanelLocalPosition + offset
+
+end

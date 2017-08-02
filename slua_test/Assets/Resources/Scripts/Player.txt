@@ -1,0 +1,40 @@
+import "UnityEngine"
+import "UnityEngine.UI"
+
+local playerControl = {}
+
+local player = GameObject.Find("Player")
+local transform = player:GetComponent(Transform)
+local gun = GameObject.Find("Player/Gun"):GetComponent(Transform)
+local shootPos = GameObject.Find("Player/ShootPos"):GetComponent(Transform)
+local bullet = Resources.Load("Prefabs/Bullet")
+local button = GameObject.Find("Canvas/ShootButton"):GetComponent(Button)
+
+function main()
+
+
+     button.onClick:AddListener(
+        function()
+            playerControl.shoot()
+        end
+    )
+
+    return playerControl
+
+end
+
+function playerControl:update()
+
+    h = Input.GetAxis("Horizontal")
+    v = Input.GetAxis("Vertical")
+
+    if v>0 then
+        transform:Translate(Vector3.forward*Time.deltaTime*-v*5)  
+    end
+    
+    transform:Rotate(Vector3.up*Time.deltaTime*h*60)
+end
+
+function  playerControl.shoot()
+     local g = GameObject.Instantiate(bullet,shootPos.position,gun.rotation)
+end
